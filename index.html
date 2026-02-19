@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Query Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCzCp_EGGmSolCSy8iQNrQAE-vGO8vTKIo",
+            authDomain: "education-toppers-hub-4d045.firebaseapp.com",
+            databaseURL: "https://education-toppers-hub-4d045-default-rtdb.firebaseio.com",
+            projectId: "education-toppers-hub-4d045",
+            storageBucket: "education-toppers-hub-4d045.firebasestorage.app",
+            messagingSenderId: "1065320525597",
+            appId: "1:1065320525597:web:ca166ff0d6e257492f3bf4",
+            measurementId: "G-QTF6FHGEFZ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // Make Firestore available globally
+        window.db = db;
+        window.collection = collection;
+        window.addDoc = addDoc;
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c2461, #1e3799);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        header p {
+            color: #e0e0e0;
+            font-size: 1.1rem;
+        }
+        
+        .forum-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            color: #0c2461;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f1f1;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #1e3799;
+            box-shadow: 0 0 0 3px rgba(30, 55, 153, 0.2);
+            outline: none;
+        }
+        
+        input:invalid, select:invalid, textarea:invalid {
+            border-color: #e74c3c;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .verification-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px dashed #ccc;
+        }
+        
+        .captcha-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .captcha-code {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #0c2461, #1e3799);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            letter-spacing: 5px;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .refresh-btn {
+            background: #4a69bd;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #1e3799;
+            transform: rotate(90deg);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #0c2461, #1e3799);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .submit-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 5px solid #28a745;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .validation-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .forum-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-graduation-cap"></i> Student Query Form</h1>
+            <p>Submit your academic queries, suggestions, and feedback - All fields are mandatory</p>
+        </header>
+        
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i> Your query has been submitted successfully!
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-triangle"></i> Please complete all required fields and human verification correctly.
+        </div>
+        
+        <section class="forum-section">
+            <h2><i class="fas fa-pen"></i> Submit Your Query</h2>
+            <form id="forumForm" novalidate>
+                <div class="form-group">
+                    <label for="name" class="required-field">Full Name</label>
+                    <input type="text" id="name" placeholder="Enter your full name" required>
+                    <div class="validation-message" id="nameValidation">Please enter your full name</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="required-field">Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                    <div class="validation-message" id="emailValidation">Please enter a valid email address</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone" class="required-field">Contact Number</label>
+                    <input type="tel" id="phone" placeholder="Enter your 10-digit contact number" pattern="[0-9]{10}" required>
+                    <div class="validation-message" id="phoneValidation">Please enter a valid 10-digit phone number</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentId" class="required-field">Student ID</label>
+                    <input type="text" id="studentId" placeholder="Enter your student ID" required>
+                    <div class="validation-message" id="studentIdValidation">Please enter your student ID</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="class" class="required-field">Class</label>
+                    <select id="class" required>
+                        <option value="">Select your class</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                    </select>
+                    <div class="validation-message" id="classValidation">Please select your class</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="queryType" class="required-field">Query Type</label>
+                    <select id="queryType" required>
+                        <option value="">Select query type</option>
+                        <option value="academic">Academic Question</option>
+                        <option value="assignment">Assignment Help</option>
+                        <option value="exam">Exam Related</option>
+                        <option value="admission">Admission Query</option>
+                        <option value="fee">Fee Related</option>
+                        <option value="scholarship">Scholarship</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div class="validation-message" id="queryTypeValidation">Please select query type</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="title" class="required-field">Query Title</label>
+                    <input type="text" id="title" placeholder="Enter a brief title for your query" required>
+                    <div class="validation-message" id="titleValidation">Please enter a query title</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content" class="required-field">Query Description</label>
+                    <textarea id="content" placeholder="Describe your query in detail..." required></textarea>
+                    <div class="validation-message" id="contentValidation">Please describe your query</div>
+                </div>
+                
+                <div class="verification-section">
+                    <h3><i class="fas fa-user-check"></i> Human Verification</h3>
+                    <p>Please verify that you are human by entering the code below:</p>
+                    
+                    <div class="captcha-box">
+                        <div class="captcha-code" id="captchaCode">A3B7C</div>
+                        <button type="button" class="refresh-btn" id="refreshCaptcha" title="Refresh CAPTCHA">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="captchaInput" class="required-field">Enter the code above</label>
+                        <input type="text" id="captchaInput" placeholder="Enter the verification code" required>
+                        <div class="validation-message" id="captchaValidation">Please enter the correct CAPTCHA code</div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> Submit Query
+                </button>
+            </form>
+        </section>
+    </div>
+
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for Firebase to be loaded
+            setTimeout(initializeApp, 500);
+        });
+
+        function initializeApp() {
+            const forumForm = document.getElementById('forumForm');
+            const captchaCode = document.getElementById('captchaCode');
+            const refreshCaptcha = document.getElementById('refreshCaptcha');
+            const captchaInput = document.getElementById('captchaInput');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Get all required inputs
+            const requiredInputs = document.querySelectorAll('[required]');
+            
+            // Firestore collection reference
+            const postsCollection = collection(db, 'student_queries');
+            
+            // Generate a random CAPTCHA code
+            function generateCaptcha() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let captcha = '';
+                for (let i = 0; i < 5; i++) {
+                    captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return captcha;
+            }
+            
+            // Set initial CAPTCHA
+            let currentCaptcha = generateCaptcha();
+            captchaCode.textContent = currentCaptcha;
+            
+            // Refresh CAPTCHA
+            refreshCaptcha.addEventListener('click', function() {
+                currentCaptcha = generateCaptcha();
+                captchaCode.textContent = currentCaptcha;
+                captchaInput.value = '';
+                hideValidationMessage('captchaValidation');
+            });
+            
+            // Validate individual field
+            function validateField(field) {
+                const fieldId = field.id;
+                const validationMsg = document.getElementById(fieldId + 'Validation');
+                
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#e74c3c';
+                    if (validationMsg) validationMsg.style.display = 'block';
+                    return false;
+                }
+                
+                // Special validation for email
+                if (field.type === 'email') {
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailPattern.test(field.value)) {
+                        field.style.borderColor = '#e74c3c';
+                        if (validationMsg) validationMsg.style.display = 'block';
+                        return false;
+                    }
+                }
+                
+                // Special validation for phone
+                if (field.id === 'phone') {
+                    const phonePattern = /^[0-9]{10}$/;
+                    if (!phonePattern.test(field.value)) {
+                        field.style.borderColor = '#e74c3c';
+                        if (validationMsg) validationMsg.style.display = 'block';
+                        return false;
+                    }
+                }
+                
+                field.style.borderColor = '#28a745';
+                if (validationMsg) validationMsg.style.display = 'none';
+                return true;
+            }
+            
+            // Hide validation message
+            function hideValidationMessage(msgId) {
+                const msg = document.getElementById(msgId);
+                if (msg) msg.style.display = 'none';
+            }
+            
+            // Add validation on input change
+            requiredInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+            
+            // Form submission
+            forumForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validate all fields
+                let isValid = true;
+                requiredInputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                    }
+                });
+                
+                // Validate CAPTCHA
+                if (captchaInput.value.toUpperCase() !== currentCaptcha) {
+                    captchaInput.style.borderColor = '#e74c3c';
+                    document.getElementById('captchaValidation').style.display = 'block';
+                    isValid = false;
+                } else {
+                    captchaInput.style.borderColor = '#28a745';
+                    document.getElementById('captchaValidation').style.display = 'none';
+                }
+                
+                if (!isValid) {
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                    
+                    // Shake animation for error
+                    errorMessage.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        errorMessage.style.animation = '';
+                    }, 500);
+                    
+                    // Scroll to error message
+                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return;
+                }
+                
+                // If validation passes
+                errorMessage.style.display = 'none';
+                
+                // Disable submit button to prevent double submission
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                
+                // Prepare post data
+                const postData = {
+                    name: document.getElementById('name').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    studentId: document.getElementById('studentId').value.trim(),
+                    class: document.getElementById('class').value,
+                    queryType: document.getElementById('queryType').value,
+                    title: document.getElementById('title').value.trim(),
+                    content: document.getElementById('content').value.trim(),
+                    timestamp: new Date().toISOString(),
+                    status: 'pending',
+                    submittedAt: new Date().toLocaleString(),
+                    queryId: 'QRY_' + Date.now()
+                };
+                
+                try {
+                    // Save to Firestore
+                    const docRef = await addDoc(postsCollection, postData);
+                    console.log('Query saved with ID:', docRef.id);
+                    
+                    successMessage.style.display = 'block';
+                    
+                    // Reset form
+                    forumForm.reset();
+                    currentCaptcha = generateCaptcha();
+                    captchaCode.textContent = currentCaptcha;
+                    
+                    // Reset border colors
+                    requiredInputs.forEach(input => {
+                        input.style.borderColor = '#ddd';
+                    });
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 5000);
+                    
+                    // Scroll to top to show success message
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                } catch (error) {
+                    console.error('Error saving query to Firestore:', error);
+                    alert('There was an error submitting your query. Please check your internet connection and try again.');
+                } finally {
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Query';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
